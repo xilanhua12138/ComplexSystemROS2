@@ -7,6 +7,10 @@ from chat_module import chat
 from prompt import sys_prompt
 import re
 
+frame_count = {
+    'blink': 39, 'happy': 45, 'sad': 47, 'dizzy': 67, 'excited': 24, 'neutral': 61,
+    'happy2': 20, 'angry': 20, 'happy3': 26, 'bootup3': 124, 'blink2': 20
+}
 cname = "chat_module"
 
 class Chat_Node(Node):
@@ -24,7 +28,7 @@ class Chat_Node(Node):
         
         self.publisher_for_emotion = self.create_publisher(
             String, '/hearts/chat_to_emo', 10)
-        return
+
 
     def listener_callback(self, msg):
         txt = msg.data
@@ -43,7 +47,9 @@ class Chat_Node(Node):
         self.publisher_for_tts.publish(msg)
 
         msg = String()
-        msg.data = emotion
+
+        times = int((len(text_result)/7) // (frame_count[emotion]*0.05)) + 1
+        msg.data = emotion + f'@{times}'
         self.publisher_for_emotion.publish(msg)
 
         return
@@ -51,7 +57,7 @@ class Chat_Node(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    waffle = Chat()
+    waffle = Chat_Node()
     rclpy.spin(waffle)
 
 

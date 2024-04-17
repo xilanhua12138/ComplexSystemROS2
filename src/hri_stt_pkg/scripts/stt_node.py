@@ -130,9 +130,9 @@ class STT_Node(Node):
     def listen(self, msg):
         self.tts_is_playing = msg.data
 
-    def process_audio(self, msg):
+    def process_audio(self):
 
-        msg = String()
+        pub_msg = String()
         last_result = ''
         speaker_buffer = []
 
@@ -170,7 +170,8 @@ class STT_Node(Node):
                                 self.is_active = True
                                 
                                 text_result = "你好，请问有什么需要我帮助的吗"
-                                msg.data = result 
+                                pub_msg.data = result 
+                                self.publisher.publish(pub_msg)
                                 # change_emotion(text_result, 'happy')
                                 
                                 # play_text_audio(text_result, tts)
@@ -180,8 +181,8 @@ class STT_Node(Node):
                                 continue
                             
                             if self.is_active:
-                                msg.data = result
-                                self.publisher.publish(msg)
+                                pub_msg.data = result
+                                self.publisher.publish(pub_msg)
                                 # text_result, memory = chat(result, memory)
                                 # new_emotion = text_result.split('@')[0]
                                 

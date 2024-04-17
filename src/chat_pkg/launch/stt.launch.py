@@ -12,7 +12,7 @@ def generate_launch_description():
     ld =  LaunchDescription ([
         Node(
         package    ="hri_stt_pkg",
-        executable ="stt.py",
+        executable ="stt_node.py",
         name       ="stt_node", #Takes priorty over node name in package code
         output     ="screen",
         emulate_tty = True)

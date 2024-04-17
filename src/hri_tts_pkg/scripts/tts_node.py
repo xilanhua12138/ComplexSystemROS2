@@ -72,7 +72,7 @@ def play_text_audio(text, tts):
         sf.write("./generated.wav", audio.samples, samplerate=audio.sample_rate, subtype="PCM_16",)
     play_back_thread.join()
 
-class Sayit(Node):
+class TTS_Node(Node):
     def __init__(self):
         super().__init__('tts_node')
 
@@ -123,7 +123,7 @@ class Sayit(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    tts_node  = Sayit()
+    tts_node  = TTS_Node()
     rclpy.spin(tts_node)
 
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(hri_tts_pkg)
+project(hri_emo_pkg)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -18,15 +18,16 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
-
-
-
+find_package(rclpy REQUIRED)
+# uncomment the following section in order to fill in
+# further dependencies manually.
+# find_package(<dependency> REQUIRED)
 
 ament_python_install_package(scripts)
 
 install(PROGRAMS
-scripts/tts_node.py
-DESTINATION lib/${PROJECT_NAME}/
+scripts/emo_node.py
+DESTINATION lib/${PROJECT_NAME}
 )
 
 install (DIRECTORY
