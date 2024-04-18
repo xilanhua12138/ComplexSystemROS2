@@ -5,7 +5,7 @@ import rclpy
 import queue
 from rclpy.node import Node
 from std_msgs.msg import String, Bool
-from emotions import load_emo_frames, show_emo_thread
+from py_utils_pkg.emotions import load_emo_frames, show_emo_thread
 import tkinter as tk
 import numpy as np
 import threading
@@ -47,11 +47,11 @@ class EMO_Node(Node):
         self.current_emotion = 'neutral'
 
         self.subscriber = self.create_subscription(String, '/hearts/chat_to_emo', self.listen,10)
-
+        print('emo node is started')
 
     def listen(self, emo_msg):
         try:
-            times, new_emo = emo_msg.data.split('@')
+            new_emo, times = emo_msg.data.split('@')
             times = int(times)  # 确保这是一个整数
             change_emotion(times, new_emo)
         except ValueError:

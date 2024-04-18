@@ -3,8 +3,8 @@
 import rclpy
 from   rclpy.node    import Node
 from   std_msgs.msg  import String
-from chat_module import chat
-from prompt import sys_prompt
+from py_utils_pkg.chat_module import chat
+from py_utils_pkg.prompt import sys_prompt
 import re
 
 frame_count = {
@@ -29,28 +29,40 @@ class Chat_Node(Node):
         self.publisher_for_emotion = self.create_publisher(
             String, '/hearts/chat_to_emo', 10)
 
+        print('chat node is started')
 
     def listener_callback(self, msg):
         txt = msg.data
+        if txt=='小白小白':
+            text_result = '您好,请问有什么需要帮助的？'
+            print(f'Assistant: {text_result}\n')
+            msg = String()
+            msg.data = text_result
+            self.publisher_for_tts.publish(msg)
+            emotion = 'happy'
+            msg = String()
+            times = int((len(text_result)/7) // (frame_count[emotion]*0.05)) + 1
+            msg.data = emotion + f'@{times}'
+            self.publisher_for_emotion.publish(msg)
+        else:
+            # pass text to get an appropriate answer
+            text_result, memory = chat(txt, self.memory)
+            print(f'Assistant: {text_result}\n')
+            emotion = text_result.split('@')[0] 
+            text_result = ''.join(text_result.split('@')[1:])
+            pattern = re.compile(r'[*#$.""@%^&()+-><、]')
+            text_result = pattern.sub('', text_result)
 
-        # pass text to get an appropriate answer
-        text_result, memory = chat(txt, self.memory)
-        emotion = text_result.split('@')[0] 
-        text_result = ''.join(text_result.split('@')[1:])
-        pattern = re.compile(r'[*#$.""@%^&()+-><、]')
-        text_result = pattern.sub('', text_result)
+            self.memory = memory
 
-        self.memory = memory
+            msg = String()
+            msg.data = text_result
+            self.publisher_for_tts.publish(msg)
 
-        msg = String()
-        msg.data = text_result
-        self.publisher_for_tts.publish(msg)
-
-        msg = String()
-
-        times = int((len(text_result)/7) // (frame_count[emotion]*0.05)) + 1
-        msg.data = emotion + f'@{times}'
-        self.publisher_for_emotion.publish(msg)
+            msg = String()
+            times = int((len(text_result)/7) // (frame_count[emotion]*0.05)) + 1
+            msg.data = emotion + f'@{times}'
+            self.publisher_for_emotion.publish(msg)
 
         return
 

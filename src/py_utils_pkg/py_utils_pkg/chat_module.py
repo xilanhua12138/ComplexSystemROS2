@@ -1,7 +1,7 @@
 import requests
 import json
 from typing import List
-from chat_api import request_api 
+from py_utils_pkg.chat_api import request_api 
 
 def chat(text:str, memory:List):
     

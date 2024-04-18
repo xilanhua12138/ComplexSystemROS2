@@ -10,7 +10,7 @@ import queue
 import threading
 import numpy as np
 import soundfile as sf
-
+import time
 cname = " tts_module"
 buffer = queue.Queue()
 
@@ -19,6 +19,15 @@ stopped = False
 killed = False
 
 event = threading.Event()
+
+import subprocess
+
+def mute_microphone():
+    subprocess.run(['amixer', 'set', 'Capture', 'nocap'])
+
+def unmute_microphone():
+    subprocess.run(['amixer', 'set', 'Capture', 'cap'])
+
 
 def generated_audio_callback(samples: np.ndarray, progress: float):
     buffer.put(samples)
@@ -59,7 +68,6 @@ def play_audio():
         event.clear()
 
 def play_text_audio(text, tts):
-    print(f'Assistant: {text}\n')
     play_back_thread = threading.Thread(target=play_audio)
     play_back_thread.start()
     audio = tts.generate(text, sid=0, speed=0.9, callback=generated_audio_callback,)
@@ -83,9 +91,10 @@ class TTS_Node(Node):
             Bool, '/hearts/tts_is_playing', 10)
 
         self.tts = self.create_tts()
+        print('tts node is started')
 
     def create_tts(self):
-        
+
         tts_config = sherpa_onnx.OfflineTtsConfig(
             model=sherpa_onnx.OfflineTtsModelConfig(
                 vits=sherpa_onnx.OfflineTtsVitsModelConfig(
@@ -109,16 +118,21 @@ class TTS_Node(Node):
         return tts
     
     def listen_callback(self, msg):
+        mute_microphone()
+
         tts_is_playing = Bool()
         text_result = msg.data
 
         tts_is_playing.data = True
         self.pub_is_playing.publish(tts_is_playing)
-
+        
         play_text_audio(text_result, self.tts)
-
+        
         tts_is_playing.data = False
         self.pub_is_playing.publish(tts_is_playing)
+
+        time.sleep(0.5)
+        unmute_microphone()
 
 def main(args=None):
     rclpy.init(args=args)
