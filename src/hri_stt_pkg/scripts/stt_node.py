@@ -127,6 +127,20 @@ class STT_Node(Node):
         )
         return recognizer
     
+    def recognize_name(self, speaker_buffer, extractor, sample_rate, manager):
+        extractor_stream = extractor.create_stream()
+        extractor_stream.accept_waveform(
+            sample_rate=sample_rate, waveform=speaker_buffer
+        )
+        extractor_stream.input_finished()
+        embedding = extractor.compute(extractor_stream)
+        embedding = np.array(embedding)
+        name = manager.search(embedding, threshold=0.5)
+        
+        if not name:
+            name = "User"
+        return name
+
     def listen(self, msg):
         self.tts_is_playing = msg.data
 

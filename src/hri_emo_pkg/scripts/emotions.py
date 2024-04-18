@@ -17,7 +17,7 @@ def load_emo_frames():
     for emo in emotion_list:
         one_frames = []
         for i in range(frame_count[emo]):
-            image_path = os.path.join('emotions', emo, f'frame{i}.png')
+            image_path = os.path.join('/home/xilanhua/ros_ws/src/hri_emo_pkg/scripts/emotions', emo, f'frame{i}.png')
             img = Image.open(image_path)
             photo = ImageTk.PhotoImage(img)
             one_frames.append(photo)

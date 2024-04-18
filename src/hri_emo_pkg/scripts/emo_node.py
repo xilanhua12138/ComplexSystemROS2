@@ -28,6 +28,18 @@ def change_emotion(times, new_emotion):
         _change_emotion(new_emotion)
     _change_emotion('neutral')
 
+def start_tkinter():
+    root = tk.Tk()
+    root.title("Emotion Animation")
+    canvas = tk.Canvas(root, width=320, height=240)
+    canvas.pack()
+    
+    frames_emo = load_emo_frames()
+    
+    threading.Thread(target=show_emo_thread, args=(frames_emo, emotion_queue, canvas), daemon=True).start()
+    
+    root.mainloop()
+
 class EMO_Node(Node):
 
     def __init__(self):
@@ -36,24 +48,22 @@ class EMO_Node(Node):
 
         self.subscriber = self.create_subscription(String, '/hearts/chat_to_emo', self.listen,10)
 
-        root = tk.Tk()
-        root.title("Emotion Animation")
-        canvas = tk.Canvas(root, width=320, height=240)
-        canvas.pack()
-        
-        frames_emo = load_emo_frames()
-
-        threading.Thread(target=show_emo_thread, args=(frames_emo, emotion_queue, canvas), daemon=True).start()
-
 
     def listen(self, emo_msg):
-        times, new_emo = emo_msg.data.split('@')
-        change_emotion(times, new_emo)
+        try:
+            times, new_emo = emo_msg.data.split('@')
+            times = int(times)  # 确保这是一个整数
+            change_emotion(times, new_emo)
+        except ValueError:
+            self.get_logger().error("Received invalid emotion data format: {}".format(emo_msg.data))
 
 
 def main(args=None):
     rclpy.init(args=args)
-   
+
+    gui_thread = threading.Thread(target=start_tkinter, daemon=True)
+    gui_thread.start()
+
     my_node = EMO_Node()
  
     rclpy.spin(my_node)  
