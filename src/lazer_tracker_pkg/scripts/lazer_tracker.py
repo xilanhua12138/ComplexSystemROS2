@@ -10,6 +10,7 @@ from geometry_msgs.msg import Twist
 
 from collections import deque
 
+
 RAD2DEG = 180 / math.pi
 class SinglePID:
     def __init__(self, P=0.1, I=0.0, D=0.1):
@@ -43,13 +44,13 @@ class SinglePID:
 class LaserTracker(Node):
     def __init__(self):
         super().__init__('laser_tracker')
-        self.declare_parameter('targetDist', 0.1)
+        self.declare_parameter('targetDist', 0.3)
         self.response_dist = self.get_parameter('targetDist').value
         self.moving = False
         self.switch = False
         self.lin_pid = SinglePID(1.0, 0.0, 1.5)
         self.ang_pid = SinglePID(3.0, 0.0, 5.0)
-        self.laser_angle = 90
+        self.laser_angle = 65
         self.priority_angle = 30
 
         self.sub_laser = self.create_subscription(
@@ -57,8 +58,9 @@ class LaserTracker(Node):
         
         self.pub_vel = self.create_publisher(Twist, '/cmd_vel', 10)
 
-        self.window_size = 100
+        self.window_size = 50
         self.avg_velocity_x = deque(maxlen=self.window_size)
+        self.is_finished = False
 
     def cancel(self):
         self.pub_vel.publish(Twist())
@@ -117,6 +119,9 @@ class LaserTracker(Node):
         self.avg_velocity_x.append(velocity.linear.x)
         if len(self.avg_velocity_x) == self.window_size and sum(self.avg_velocity_x)/self.window_size < 0.02:
             self.pub_vel.publish(Twist())
+
+            self.is_finished = True
+            self.destroy_node()
             return 
 
         self.pub_vel.publish(velocity)
@@ -126,7 +131,11 @@ class LaserTracker(Node):
 def main(args=None):
     rclpy.init(args=args)
     tracker = LaserTracker()
-    rclpy.spin(tracker)
+    while rclpy.ok():
+        rclpy.spin_once(tracker)
+        if tracker.is_finished:
+            break  # 退出循环
+    
     tracker.destroy_node()
     rclpy.shutdown()
 

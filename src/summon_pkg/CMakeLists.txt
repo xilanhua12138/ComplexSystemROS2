@@ -25,7 +25,7 @@ find_package(ament_cmake_python REQUIRED)
 ament_python_install_package(scripts)
 
 install(PROGRAMS
-scripts/summoncar.py
+scripts/summoncar_v0.2.py
 DESTINATION lib/${PROJECT_NAME}/
 )
 

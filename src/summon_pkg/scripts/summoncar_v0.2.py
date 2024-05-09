@@ -79,7 +79,14 @@ class VoiceControlledRobot(Node):
                 
                 self.adjust_angle = math.radians(self.adjust_angle)  # Convert to radians
                 self.adjust_angle *= self.reverse
+
+                #reinitialize
+                self.turn_angle = 0
                 self.is_adjusting = True
+                self.reverse = 1
+                self.current_angle = None
+                self.last_angle = None
+
 
     def angle_callback(self, msg):
         if not self.is_adjusting:
@@ -118,7 +125,7 @@ class VoiceControlledRobot(Node):
                 process = subprocess.Popen(["ros2", "run", "lazer_tracker_pkg", "lazer_tracker.py"])
                 thread = threading.Thread(target=self.process_finishedcallback, args=(process,))
                 thread.start()
-                
+
                 return 
         else:
             return

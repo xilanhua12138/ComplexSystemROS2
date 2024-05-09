@@ -13,7 +13,7 @@ def generate_launch_description():
     ld =  LaunchDescription ([
         Node(
         package    ="summon_pkg",
-        executable ="summoncar.py",
+        executable ="summoncar_v0.2.py",
         name       ="summon_node", 
         output     ="screen",
         emulate_tty = True,
