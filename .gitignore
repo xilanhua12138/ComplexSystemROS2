@@ -1,0 +1,6 @@
+.vscode/
+log/
+install/
+build/
+src/hri_emo_pkg/scripts/emotions/
+*.pyc
