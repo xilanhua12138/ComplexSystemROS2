@@ -31,13 +31,16 @@ def change_emotion(times, new_emotion):
 def start_tkinter():
     root = tk.Tk()
     root.title("Emotion Animation")
-    canvas = tk.Canvas(root, width=320, height=240)
+    root.attributes('-fullscreen', True)
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+    canvas = tk.Canvas(root, width=screen_width, height=screen_height)
     canvas.pack()
-    
+
     frames_emo = load_emo_frames()
-    
+
     threading.Thread(target=show_emo_thread, args=(frames_emo, emotion_queue, canvas), daemon=True).start()
-    
+
     root.mainloop()
 
 class EMO_Node(Node):
@@ -65,8 +68,8 @@ def main(args=None):
     gui_thread.start()
 
     my_node = EMO_Node()
- 
-    rclpy.spin(my_node)  
+
+    rclpy.spin(my_node)
 
 
 

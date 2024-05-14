@@ -14,12 +14,31 @@ current_emotion = 'neutral'
 
 def load_emo_frames():
     frames_emo = {}
+    from screeninfo import get_monitors
+
+    monitors = get_monitors()
+
+    primary_monitor = monitors[0]
+    screen_width = primary_monitor.width
+    screen_height = primary_monitor.height
+    
     for emo in emotion_list:
         one_frames = []
         for i in range(frame_count[emo]):
             image_path = os.path.join('/root/ros_ws/src/hri_emo_pkg/scripts/emotions', emo, f'frame{i}.png')
-            img = Image.open(image_path)
-            photo = ImageTk.PhotoImage(img)
+            original_image = Image.open(image_path)
+
+            image_width, image_height = original_image.size
+            if image_width / image_height > screen_width / screen_height:
+                new_height = screen_height
+                new_width = int(image_width * (new_height / image_height))
+                resized_image = original_image.resize((new_width, new_height), Image.ANTIALIAS)
+            else:
+                new_width = screen_width
+                new_height = int(image_height * (new_width / image_width))
+                resized_image = original_image.resize((new_width, new_height), Image.ANTIALIAS)
+
+            photo = ImageTk.PhotoImage(resized_image)
             one_frames.append(photo)
         frames_emo[emo] = one_frames
     return frames_emo

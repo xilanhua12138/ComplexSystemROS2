@@ -17,15 +17,15 @@ class Chat_Node(Node):
 
     def __init__(self):
         super().__init__('chat_node')
-        self.memory = [{"role":"user", "content":f'{sys_prompt}'}, 
+        self.memory = [{"role":"user", "content":f'{sys_prompt}'},
               {"role":"assistant", "content":'neutral@好的，主人'}]
-        
+
         self.subscription = self.create_subscription(
             String, '/hearts/stt', self.listener_callback, 10)
 
         self.publisher_for_tts = self.create_publisher(
             String, '/hearts/chat_to_tts', 10)
-        
+
         self.publisher_for_emotion = self.create_publisher(
             String, '/hearts/chat_to_emo', 10)
 
@@ -48,7 +48,7 @@ class Chat_Node(Node):
             # pass text to get an appropriate answer
             text_result, memory = chat(txt, self.memory)
             print(f'Assistant: {text_result}\n')
-            emotion = text_result.split('@')[0] 
+            emotion = text_result.split('@')[0]
             text_result = ''.join(text_result.split('@')[1:])
             pattern = re.compile(r'[*#$.""@%^&()+-><、]')
             text_result = pattern.sub('', text_result)
